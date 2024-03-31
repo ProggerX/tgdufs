@@ -1,5 +1,6 @@
 FROM golang:1.22.1
 
-COPY . .
+WORKDIR /app
+COPY . /app
 
 CMD ["go", "run", "."]
