@@ -20,7 +20,7 @@ func sendHello(bot *telego.Bot, update telego.Update) {
 	))
 }
 
-func handleFile(bot* telego.Bot, update telego.Update) {
+func asyncFileHandler(bot *telego.Bot, update telego.Update) {
 	if update.Message.Document == nil {
 		bot.SendMessage(tu.Message(
 			tu.ID(update.Message.Chat.ID),
@@ -46,6 +46,11 @@ func handleFile(bot* telego.Bot, update telego.Update) {
 		Text: fmt.Sprintf("Your file is <a href=\"%s/%s\">here</a>", dufsURL, fileid),
 		ParseMode: "html",
 	})
+
+}
+
+func handleFile(bot* telego.Bot, update telego.Update) {
+	go asyncFileHandler(bot, update)
 }
 
 func main() {
