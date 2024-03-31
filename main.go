@@ -28,7 +28,7 @@ func handleFile(bot* telego.Bot, update telego.Update) {
 		))
 		return
 	}
-	fileid := fmt.Sprintf("%s|%s", uuid.NewString(), update.Message.Document.FileName)
+	fileid := fmt.Sprintf("%s-%s", uuid.NewString(), update.Message.Document.FileName)
 	got_file, _ := bot.GetFile(&telego.GetFileParams{FileID: update.Message.Document.FileID})
 	bts, _ := tu.DownloadFile(bot.FileDownloadURL(got_file.FilePath))
 
@@ -41,10 +41,11 @@ func handleFile(bot* telego.Bot, update telego.Update) {
 	request, _ := http.NewRequest("PUT", fmt.Sprintf("%s/%s", dufsURL, fileid), body)
 	client := &http.Client{}
 	client.Do(request)
-	bot.SendMessage(tu.Message(
-		tu.ID(update.Message.Chat.ID),
-		fmt.Sprintf("Your file is here: %s/%s", dufsURL, fileid),
-	))
+	bot.SendMessage(&telego.SendMessageParams{
+		ChatID: tu.ID(update.Message.Chat.ID),
+		Text: fmt.Sprintf("Your file is <a href=\"%s/%s\">here</a>", dufsURL, fileid),
+		ParseMode: "html",
+	})
 }
 
 func main() {
