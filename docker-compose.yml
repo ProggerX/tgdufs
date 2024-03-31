@@ -1,0 +1,9 @@
+services:
+  bot:
+    container_name: tgdufs
+    image: tgdufs
+    build:
+      context: .
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - DUFS_URL=${DUFS_URL}
