@@ -22,16 +22,27 @@ func sendHello(bot *telego.Bot, update telego.Update) {
 }
 
 func asyncFileHandler(bot *telego.Bot, update telego.Update) {
-	if update.Message.Document == nil {
+	if update.Message.Document == nil && update.Message.Audio == nil{
 		bot.SendMessage(tu.Message(
 			tu.ID(update.Message.Chat.ID),
 			"There is no file in this message",
 		))
 		return
 	}
-	fileid := fmt.Sprintf("%s.%s", uuid.NewString(), strings.Split(update.Message.Document.FileName, ".")[len(strings.Split(update.Message.Document.FileName, ".")) - 1])
-	got_file, _ := bot.GetFile(&telego.GetFileParams{FileID: update.Message.Document.FileID})
-	bts, _ := tu.DownloadFile(bot.FileDownloadURL(got_file.FilePath))
+
+	var fileid string
+	var got_file *telego.File
+	var bts []byte
+
+	if update.Message.Document != nil {
+		fileid = fmt.Sprintf("%s.%s", uuid.NewString(), strings.Split(update.Message.Document.FileName, ".")[len(strings.Split(update.Message.Document.FileName, ".")) - 1])
+		got_file, _ = bot.GetFile(&telego.GetFileParams{FileID: update.Message.Document.FileID})
+		bts, _ = tu.DownloadFile(bot.FileDownloadURL(got_file.FilePath))
+	} else {
+		fileid = fmt.Sprintf("%s.%s", uuid.NewString(), strings.Split(update.Message.Audio.FileName, ".")[len(strings.Split(update.Message.Audio.FileName, ".")) - 1])
+		got_file, _ = bot.GetFile(&telego.GetFileParams{FileID: update.Message.Audio.FileID})
+		bts, _ = tu.DownloadFile(bot.FileDownloadURL(got_file.FilePath))
+	}
 
 	body := &bytes.Buffer{}
 	reader := bytes.NewReader(bts)
