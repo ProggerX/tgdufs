@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/mymmrac/telego"
 	tu "github.com/mymmrac/telego/telegoutil"
+	"strings"
 	th "github.com/mymmrac/telego/telegohandler"
 	"github.com/joho/godotenv"
 	"io"
@@ -28,7 +29,7 @@ func asyncFileHandler(bot *telego.Bot, update telego.Update) {
 		))
 		return
 	}
-	fileid := fmt.Sprintf("%s-%s", uuid.NewString(), update.Message.Document.FileName)
+	fileid := fmt.Sprintf("%s.%s", uuid.NewString(), strings.Split(update.Message.Document.FileName, ".")[len(strings.Split(update.Message.Document.FileName, ".")) - 1])
 	got_file, _ := bot.GetFile(&telego.GetFileParams{FileID: update.Message.Document.FileID})
 	bts, _ := tu.DownloadFile(bot.FileDownloadURL(got_file.FilePath))
 
@@ -43,8 +44,7 @@ func asyncFileHandler(bot *telego.Bot, update telego.Update) {
 	client.Do(request)
 	bot.SendMessage(&telego.SendMessageParams{
 		ChatID: tu.ID(update.Message.Chat.ID),
-		Text: fmt.Sprintf("Your file is <a href=\"%s/%s\">here</a>", dufsURL, fileid),
-		ParseMode: "html",
+		Text: fmt.Sprintf("Your file is here: %s/%s", dufsURL, fileid),
 	})
 
 }
